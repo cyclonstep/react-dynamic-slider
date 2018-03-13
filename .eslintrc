@@ -43,7 +43,7 @@
     "eqeqeq": ["warn", "always"
         ],
     "indent": ["warn",
-            2,
+            4,
             {
                 "SwitchCase": 1
             }
@@ -170,10 +170,10 @@
         ],
     "react/jsx-handler-names": "warn",
     "react/jsx-indent": ["warn",
-            2
+            4
         ],
     "react/jsx-indent-props": ["warn",
-            2
+            4
         ],
     "react/jsx-key": "warn",
     "react/jsx-max-props-per-line": "warn",
@@ -205,7 +205,6 @@
     "react/no-is-mounted": "warn",
     "react/no-unused-prop-types": "warn",
     "react/prefer-es6-class": "warn",
-    "react/prefer-stateless-function": "warn",
     "react/prop-types": "warn",
     "react/react-in-jsx-scope": "warn",
     "react/require-render-return": "warn",

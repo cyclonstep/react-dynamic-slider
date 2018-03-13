@@ -8,7 +8,8 @@
     "build": "babel lib -d build",
     "lint": "eslint lib/**; exit 0",
     "lint:watch": "esw -w lib/**",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "start": "webpack-dev-server --inline --hot --colors"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "eslint": "^4.18.2",
@@ -39,6 +41,13 @@
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "styled-components": "^3.2.1"
+    "styled-components": "^3.2.1",
+    "webpack-cli": "^2.0.11",
+    "webpack-dev-server": "^3.1.1"
+  },
+  "dependencies": {
+    "html-webpack-plugin": "^3.0.6",
+    "prop-type": "0.0.1",
+    "webpack": "^4.1.1"
   }
 }
