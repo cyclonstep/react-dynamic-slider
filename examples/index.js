@@ -2,7 +2,7 @@
 import { AppContainer } from 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Slider from '../components/Slider';
+import Slider from '../src/components/Slider';
 
 const rootEl = document.getElementById('app');
 

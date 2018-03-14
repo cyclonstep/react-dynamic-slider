@@ -3,11 +3,18 @@ import PropTypes from 'prop-types';
 
 export default class Thumb extends Component {
     render() {
-        let defaultThumb;
+        let defaultThumb,
+            sliderSize = this.props.sliderSize,
+            thumbSize = this.props.thumbSize,
+            position = this.props.position,
+            color = this.props.color;
+
+        console.log("position: " + this.props.position);
+
         const thumbCentering = (sliderSize - thumbSize) * 0.5;
         const thumbWrapperStyles = {
             position: 'absolute',
-            left: this.props.position,
+            left: position,
             top: '0px',
             bottom: undefined,
             marginTop: `${thumbCentering}px`,
@@ -16,10 +23,10 @@ export default class Thumb extends Component {
         };
         if (!this.props.customThumb) {
             const defaultThumbStyles = {
-                backgroundColor: this.props.color,
+                backgroundColor: color,
                 borderRadius: '100%',
-                height: `${this.props.thumbSize}px`,
-                width: `${this.props.thumbSize}px`
+                height: `${thumbSize}px`,
+                width: `${thumbSize}px`
             };
             defaultThumb = <div style={defaultThumbStyles} />;
         }
@@ -41,4 +48,8 @@ Thumb.propTypes = {
     thumbSize: PropTypes.number,
     color: PropTypes.string,
     customThumb: PropTypes.node
-}
+};
+
+Thumb.defaultProps = {
+    position: 20
+};

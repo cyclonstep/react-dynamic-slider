@@ -12,8 +12,15 @@ export default class Slider extends Component {
         this.state = {
             handleCount: 1,
             drag: false,
-            values: [0],
+            markValues: [0],
+            ratio: 20,
+            mainThumbValues: 0,
+            step: 1
         };
+
+        this.onInteractionStart = this.onInteractionStart.bind(this);
+        this.onMouseOrTouchMove = this.onMouseOrTouchMove.bind(this);
+        this.onInteractionEnd = this.onInteractionEnd.bind(this);
     }
     
     componentWillMount() {
@@ -59,7 +66,7 @@ export default class Slider extends Component {
             length: sl.clientWidth,
             height: sl.clientHeight,
         };
-
+        console.log(sliderInfo);
         return sliderInfo;
     }
 
@@ -87,29 +94,36 @@ export default class Slider extends Component {
     }
 
     updateSliderValue(e, eventType) {
-        const { max, min } = this.state;
+        const { maxValue, minValue } = this.state;
         const { vertical } = this.props;
 
-        let { value } = this.state;
+        let { mainThumbValue } = this.state;
         const xCoords = (eventType !== 'touch' ? e.pageX: e.touches[0].pageX) - window.pageXOffset;
         const yCoords = (eventType !== 'touch' ? e.pageY : e.touches[0].pageY) - window.pageYOffset;
         // compare position to slider length to get percentage
         let position;
         let lengthOrHeight;
         position = xCoords - this.getSliderInfo().bounds.left;
+        console.log("updateSlider xCoords: " + xCoords);
+        console.log("updateSlider position: " + position);
         lengthOrHeight = this.getSliderInfo().length;
+        console.log("updateSlider lengthorh: " + lengthOrHeight);
 
         const percent = this.clampValue(+(position / lengthOrHeight).toFixed(2), 0, 1);
+        console.log("updateSlider percent: " + percent);
         // convert percent -> value the match value to notch as per props/state.step
         const rawValue = this.valueFromPercent(percent);
-        value = this.calculateMatchingNotch(rawValue);
+        console.log("updateSlider rawValue: " + rawValue);
+        mainThumbValue = this.calculateMatchingNotch(rawValue);
+        console.log("updateSlider mainThumbValue: " + mainThumbValue);
         // avoid repeated updates of the same value
-        if (value === this.state.value) {return;}
+        if (mainThumbValue === this.state.value) {return;}
         // percentage of the range to render the track/thumb to
-        const ratio = (value - min) * 100 / (max - min);
+        const ratio = (mainThumbValue - minValue) * 100 / (maxValue - minValue);
+        console.log("updateSlider Ratio: " + ratio);
         this.setState({
             percent,
-            value,
+            mainThumbValue,
             ratio,
         }, this.handleChange);
     }
@@ -119,22 +133,25 @@ export default class Slider extends Component {
     }
 
     valueFromPercent(percentage) {
-        const { range, min } = this.state;
-        const val = (range * percentage) + min;
+        const { range, minValue } = this.state;
+        console.log("range: " + range);
+        const val = (range * percentage) + minValue;
+        console.log("val: " + val);
         return val;
     }
 
     calculateMatchingNotch(value) {
-        const { step, max, min } = this.state;
+        const { step, maxValue, minValue } = this.state;
+        console.log("step: " + step);
         const values = [];
-        for (let i = min; i <= max; i++) {
+        for (let i = minValue; i <= maxValue; i++) {
             values.push(i);
         }
 
         const notches = [];
         // find how many entries in values are divisible by step (+min,+max)
         for (const s of values) {
-            if (s === min || s === max || s % step === 0) {
+            if (s === minValue || s === maxValue || s % step === 0) {
                 notches.push(s);
             }
         }
@@ -154,32 +171,51 @@ export default class Slider extends Component {
     }
 
     propsToState(props) {
-        let { values, handleCount } = props;
-        if ( values !== undefined || values.length !== 0) {
+        let { markValues, handleCount } = props;
+        console.log("handleCount: " + handleCount);
+        console.log(markValues);
+        // put the handlCount first
+        this.setState({
+            handleCount: handleCount
+        });
+
+        if ( markValues !== undefined || markValues.length !== 0) {
             for (let i = 0; i < handleCount; i++) {
-                if (values.length > 0) {
+                if (markValues.length > 0) {
                     this.setState(prevState => ({
-                        values: [...prevState.values, values[i]]
+                        markValues: [...prevState.markValues, markValues[i]]
                     }));
                 } else {
                     this.setState(prevState => ({
-                        values: [...prevState.values, 0]
+                        markValues: [...prevState.markValues, ...[0]]
                     }));
+                    // const nowmarkValues = this.state.markValues;
+                    // const nextmarkValues = nowmarkValues.concat([1,2,3]);
+                    // this.setState({
+                    //     markValues: nextmarkValues
+                    // }, function(){console.log(this.state.markValues)});
                 }
-                console.log(this.state.values);
             }
         }
 
-        let { thumbSize } = props;
+        let { thumbSize, sliderSize } = props;
+        console.log("thumbSize: " + thumbSize);
         if (props.thumbSize === undefined) {
-            thumbSize = (this.props.disableThumb ? 0 : props.sliderSize * 2);
+            console.log("sliderSize: " + sliderSize);
+            thumbSize = (this.props.disableThumb ? 0 : sliderSize * 2);
         }
+        console.log("thumbSize after: " + thumbSize);
 
         const { minValue, maxValue, id } = props;
         const range = maxValue - minValue;
-        const ratio = Math.max((values[0] - minValue), 0) * 100 / (maxValue - minValue);
+        const checkVal = markValues[0] === undefined ? 0 : markValues[0];
+        const ratio = Math.max((checkVal - minValue), 0) * 100 / (maxValue - minValue);
+        console.log("markValues[0]: " + markValues[0]);
+        console.log("range: " + range);
+        console.log("ratio: " + ratio);
+
         this.setState(prevState => ({
-            values: [...prevState.values, values],
+            markValues: [...prevState.markValues, markValues],
             minValue,
             maxValue,
             range,
@@ -189,6 +225,8 @@ export default class Slider extends Component {
         }));        
     }
     render() {
+        console.log(this.state);
+        console.log("ratio: " + this.state.ratio);
         const {
             vertical,
             sliderSize,
@@ -201,6 +239,8 @@ export default class Slider extends Component {
             verticalSliderHeight,
             eventWrapperPadding
         } = this.props;
+
+        console.log(this.props);
         const eventWrapperStyle = {
             height: '100%',
             position: 'relative',
@@ -225,6 +265,8 @@ export default class Slider extends Component {
                 style={eventWrapperStyle}
                 onMouseDown={this.onInteractionStart}
                 onTouchStart={this.onInteractionStart}
+                onMouseUp={this.onInteractionEnd}
+                onTouchEnd={this.onInteractionEnd}
             >
                 <div
                     ref="slider"
@@ -257,13 +299,15 @@ Slider.propTypes = {
     handleCount: PropTypes.number,
     minValue: PropTypes.number,
     maxValue: PropTypes.number,
-    values: PropTypes.arrayOf(PropTypes.number),
+    // markValues: PropTypes.arrayOf(PropTypes.number),
     onChange: PropTypes.func,
     onChangeComplete: PropTypes.func,
     id: PropTypes.string,
     sliderColor: PropTypes.string,
     trackColor: PropTypes.string,
-    thumbColor: PropTypes.string
+    thumbColor: PropTypes.string,
+    disableThumb: PropTypes.bool,
+    mainThumbValue: PropTypes.number
 };
 
 Slider.defaultProps = {
@@ -271,8 +315,14 @@ Slider.defaultProps = {
     handleCount: 2,
     minValue: 0,
     maxValue: 100,
-    values: {},
+    markValues: {},
     onChange: noop,
     onChangeComplete: noop,
-    id: null
+    sliderColor: 'blue',
+    trackColor: 'green',
+    thumbColor: 'red',
+    id: null,
+    disableThumb: false,
+    sliderSize: 50,
+    mainThumbValue: 0
 };

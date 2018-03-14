@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 module.exports = {
     // Webpack config here
     mode: 'development',
-    entry: ['react-hot-loader/patch','./src/index.js'],
+    entry: ['react-hot-loader/patch','./examples/index.js'],
     output: {
         filename: 'bundle.[hash].js',
         publicPath: '/'
