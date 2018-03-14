@@ -7,32 +7,6 @@ import Track from './Track';
 function noop() {}
 
 export default class Slider extends Component {
-
-    static propTypes = {
-        clsName: PropTypes.string,
-        handleCount: PropTypes.number,
-        minValue: PropTypes.number,
-        maxValue: PropTypes.number,
-        values: PropTypes.arrayOf(PropTypes.number),
-        onChange: PropTypes.func,
-        onChangeComplete: PropTypes.func,
-        id: PropTypes.string,
-        sliderColor: PropTypes.string,
-        trackColor: PropTypes.string,
-        thumbColor: PropTypes.string
-    };
-
-    static defaultProps = {
-        clsName: "",
-        handleCount: 2,
-        minValue: 0,
-        maxValue: 100,
-        values: {},
-        onChange: noop,
-        onChangeComplete: noop,
-        id: null
-    };
-
     constructor(props) {
         super(props);
         this.state = {
@@ -275,3 +249,30 @@ export default class Slider extends Component {
     }
 
 }
+
+// Determine the propTypes and its default value(s)
+
+Slider.propTypes = {
+    clsName: PropTypes.string,
+    handleCount: PropTypes.number,
+    minValue: PropTypes.number,
+    maxValue: PropTypes.number,
+    values: PropTypes.arrayOf(PropTypes.number),
+    onChange: PropTypes.func,
+    onChangeComplete: PropTypes.func,
+    id: PropTypes.string,
+    sliderColor: PropTypes.string,
+    trackColor: PropTypes.string,
+    thumbColor: PropTypes.string
+};
+
+Slider.defaultProps = {
+    clsName: "",
+    handleCount: 2,
+    minValue: 0,
+    maxValue: 100,
+    values: {},
+    onChange: noop,
+    onChangeComplete: noop,
+    id: null
+};

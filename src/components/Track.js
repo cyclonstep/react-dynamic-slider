@@ -3,11 +3,6 @@ import PropTypes from 'prop-types';
 
 
 export default class Track extends Component {
-    static propTypes = {
-        color: PropTypes.string,
-        length: PropTypes.number,
-    };
-
     render() {
         let trackStyles = {
             backgroundColor: this.props.color,
@@ -21,3 +16,8 @@ export default class Track extends Component {
         );
     }
 }
+
+Track.propTypes = {
+    color: PropTypes.string,
+    length: PropTypes.number,
+};

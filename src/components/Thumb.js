@@ -2,16 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class Thumb extends Component {
-    static propTypes = {
-        position: PropTypes.number,
-        offsetTop: PropTypes.number,
-        offsetLeft: PropTypes.number,
-        sliderSize: PropTypes.number,
-        thumbSize: PropTypes.number,
-        color: PropTypes.string,
-        customThumb: PropTypes.node
-    }
-
     render() {
         let defaultThumb;
         const thumbCentering = (sliderSize - thumbSize) * 0.5;
@@ -41,4 +31,14 @@ export default class Thumb extends Component {
             </div>
         );
     }
+}
+
+Thumb.propTypes = {
+    position: PropTypes.number,
+    offsetTop: PropTypes.number,
+    offsetLeft: PropTypes.number,
+    sliderSize: PropTypes.number,
+    thumbSize: PropTypes.number,
+    color: PropTypes.string,
+    customThumb: PropTypes.node
 }
