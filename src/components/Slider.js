@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import Thumb from './Thumb';
 import Track from './Track';
+import Marker from './Marker';
 
 function noop() {}
 
@@ -12,15 +13,23 @@ export default class Slider extends Component {
         this.state = {
             handleCount: 1,
             drag: false,
-            markValues: [0],
-            ratio: 20,
+            currentPosition: 0,
+            percent: 0,
             mainThumbValues: 0,
-            step: 1
+            ratio: 20,
+            markerPositions: [],
+            markerPercents: [],
+            markerValues: [],
+            markerRatios: [],
+            step: 1,
+            dynamic: true,
+  
         };
 
         this.onInteractionStart = this.onInteractionStart.bind(this);
         this.onMouseOrTouchMove = this.onMouseOrTouchMove.bind(this);
         this.onInteractionEnd = this.onInteractionEnd.bind(this);
+        this.onDynamicThumbInteraction = this.onDynamicThumbInteraction.bind(this);
     }
     
     componentWillMount() {
@@ -37,10 +46,13 @@ export default class Slider extends Component {
 
     onInteractionStart(e) {
         const eventType = (e.touches !== undefined ? 'touch' : 'mouse');
+        console.log(eventType);
         const leftMouseButton = 0;
         if ((eventType === 'mouse') && (e.button !== leftMouseButton)) { return; }
         this.updateSliderValue(e, eventType);
-        this.setState({ drag: true, displayLabel: true });
+        if (!this.state.dynamic) {
+            this.setState({ drag: true });
+        }
         this.addEvents(eventType);
         e.preventDefault();
     }
@@ -59,6 +71,11 @@ export default class Slider extends Component {
         e.stopPropagation();
     }
 
+    onDynamicThumbInteraction(e) {
+        console.log(e);
+        console.log("masuk dynamic thumb loh");
+    }
+
     getSliderInfo() {
         const sl = this.refs.slider;
         const sliderInfo = {
@@ -66,15 +83,16 @@ export default class Slider extends Component {
             length: sl.clientWidth,
             height: sl.clientHeight,
         };
-        console.log(sliderInfo);
+        //console.log(sliderInfo);
         return sliderInfo;
     }
 
     addEvents(type) {
+        // console.log("events type: " + type);
         switch (type) {
             case 'mouse': {
                 document.addEventListener('mousemove', this.onMouseOrTouchMove);
-                document.addEventListener('nouseup', this.onInteractionEnd);
+                document.addEventListener('mouseup', this.onInteractionEnd);
                 break;
             }
             case 'touch': {
@@ -98,33 +116,54 @@ export default class Slider extends Component {
         const { vertical } = this.props;
 
         let { mainThumbValue } = this.state;
-        const xCoords = (eventType !== 'touch' ? e.pageX: e.touches[0].pageX) - window.pageXOffset;
-        const yCoords = (eventType !== 'touch' ? e.pageY : e.touches[0].pageY) - window.pageYOffset;
+        let xCoords;
+        if (!this.state.dynamic) {
+            xCoords = (eventType !== 'touch' ? e.pageX: e.touches[0].pageX) - window.pageXOffset;
+        } else {
+            let currentPosition = this.state.currentPosition;
+            let currPlusThumb = currentPosition + (this.state.thumbSize) + (this.state.thumbSize * 0.5);
+            xCoords = (e.pageX <= currPlusThumb ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
+            // console.log("current pos: " + currentPosition);
+            // console.log("currPlusThumb: " + currPlusThumb);
+            // console.log("e.pageX: " + e.pageX);
+            // console.log("xCoords: " + xCoords);
+            if (xCoords === (this.getSliderInfo().bounds.left - window.pageXOffset)) {
+                let markPosition = e.pageX - window.pageXOffset;
+                // add the marker
+                this.addMarker(markPosition);
+            } else {
+                // Hacky, but it needed to make the thumb can be dragged
+                this.setState({
+                    drag: true
+                });
+            }
+        }
         // compare position to slider length to get percentage
-        let position;
+        let currentPosition;
         let lengthOrHeight;
-        position = xCoords - this.getSliderInfo().bounds.left;
-        console.log("updateSlider xCoords: " + xCoords);
-        console.log("updateSlider position: " + position);
+        currentPosition = xCoords - this.getSliderInfo().bounds.left;
+        //console.log("updateSlider xCoords: " + xCoords);
+        // console.log("updateSlider position: " + currentPosition);
         lengthOrHeight = this.getSliderInfo().length;
-        console.log("updateSlider lengthorh: " + lengthOrHeight);
+        //console.log("updateSlider lengthorh: " + lengthOrHeight);
 
-        const percent = this.clampValue(+(position / lengthOrHeight).toFixed(2), 0, 1);
-        console.log("updateSlider percent: " + percent);
+        const percent = this.clampValue(+(currentPosition / lengthOrHeight).toFixed(2), 0, 1);
+        // console.log("updateSlider percent: " + percent);
         // convert percent -> value the match value to notch as per props/state.step
         const rawValue = this.valueFromPercent(percent);
-        console.log("updateSlider rawValue: " + rawValue);
+        // console.log("updateSlider rawValue: " + rawValue);
         mainThumbValue = this.calculateMatchingNotch(rawValue);
-        console.log("updateSlider mainThumbValue: " + mainThumbValue);
+        //console.log("updateSlider mainThumbValue: " + mainThumbValue);
         // avoid repeated updates of the same value
-        if (mainThumbValue === this.state.value) {return;}
+        if (mainThumbValue === this.state.mainThumbValues) {return;}
         // percentage of the range to render the track/thumb to
         const ratio = (mainThumbValue - minValue) * 100 / (maxValue - minValue);
-        console.log("updateSlider Ratio: " + ratio);
+        // console.log("updateSlider Ratio: " + ratio);
         this.setState({
             percent,
             mainThumbValue,
             ratio,
+            currentPosition
         }, this.handleChange);
     }
 
@@ -134,15 +173,15 @@ export default class Slider extends Component {
 
     valueFromPercent(percentage) {
         const { range, minValue } = this.state;
-        console.log("range: " + range);
+        //console.log("range: " + range);
         const val = (range * percentage) + minValue;
-        console.log("val: " + val);
+        //console.log("val: " + val);
         return val;
     }
 
     calculateMatchingNotch(value) {
         const { step, maxValue, minValue } = this.state;
-        console.log("step: " + step);
+        //console.log("step: " + step);
         const values = [];
         for (let i = minValue; i <= maxValue; i++) {
             values.push(i);
@@ -171,63 +210,107 @@ export default class Slider extends Component {
     }
 
     propsToState(props) {
-        let { markValues, handleCount } = props;
-        console.log("handleCount: " + handleCount);
-        console.log(markValues);
+        let { markerValues, handleCount } = props;
+        //console.log("handleCount: " + handleCount);
+        //console.log(markerValues);
         // put the handlCount first
         this.setState({
             handleCount: handleCount
         });
 
-        if ( markValues !== undefined || markValues.length !== 0) {
+        if ( markerValues !== undefined || markerValues.length !== 0) {
             for (let i = 0; i < handleCount; i++) {
-                if (markValues.length > 0) {
+                if (markerValues.length > 0) {
                     this.setState(prevState => ({
-                        markValues: [...prevState.markValues, markValues[i]]
+                        markerValues: [...prevState.markerValues, markerValues[i]]
                     }));
                 } else {
                     this.setState(prevState => ({
-                        markValues: [...prevState.markValues, ...[0]]
+                        markerValues: [...prevState.markerValues, ...[0]]
                     }));
-                    // const nowmarkValues = this.state.markValues;
-                    // const nextmarkValues = nowmarkValues.concat([1,2,3]);
-                    // this.setState({
-                    //     markValues: nextmarkValues
-                    // }, function(){console.log(this.state.markValues)});
                 }
             }
         }
 
-        let { thumbSize, sliderSize } = props;
-        console.log("thumbSize: " + thumbSize);
+        let { markerSize, thumbSize, sliderSize } = props;
+        //console.log("thumbSize: " + thumbSize);
         if (props.thumbSize === undefined) {
-            console.log("sliderSize: " + sliderSize);
+            //console.log("sliderSize: " + sliderSize);
             thumbSize = (this.props.disableThumb ? 0 : sliderSize * 2);
         }
-        console.log("thumbSize after: " + thumbSize);
+        if (props.markerSize === undefined) {
+            markerSize = sliderSize * 0.5;
+        }
+        //console.log("thumbSize after: " + thumbSize);
 
         const { minValue, maxValue, id } = props;
         const range = maxValue - minValue;
-        const checkVal = markValues[0] === undefined ? 0 : markValues[0];
-        const ratio = Math.max((checkVal - minValue), 0) * 100 / (maxValue - minValue);
-        console.log("markValues[0]: " + markValues[0]);
-        console.log("range: " + range);
-        console.log("ratio: " + ratio);
+        // const checkVal = markerValues[0] === undefined ? 0 : markerValues[0];
+        const ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
+        //console.log("markerValues[0]: " + markerValues[0]);
+        //console.log("range: " + range);
+        //console.log("ratio: " + ratio);
 
         this.setState(prevState => ({
-            markValues: [...prevState.markValues, markValues],
+            markerValues: [...prevState.markerValues, markerValues],
             minValue,
             maxValue,
             range,
             ratio,
             thumbSize,
+            markerSize,
             id
         }));        
     }
+
+    addMarker(markerPosition) {
+        console.log("!MARK START!");
+        console.log("addMarker markerPosition: " + markerPosition);
+        // compare position to slider length to get percentage
+        let currentPosition = markerPosition - this.getSliderInfo().bounds.left,
+            lengthOrHeight  = this.getSliderInfo().length;
+
+        const percent       = this.clampValue(+(currentPosition / lengthOrHeight).toFixed(2), 0, 1);
+        const rawValue      = this.valueFromPercent(percent);
+        const markerValue   = this.calculateMatchingNotch(rawValue);
+
+        // put marker state array into array variable
+        let markerArray     = this.state.markerValues;
+
+        // get slider's max and min value
+        const { maxValue, minValue } = this.state;
+
+        // console.log("addMarker position: " + currentPosition);
+        // console.log("addMarker lengthorh: " + lengthOrHeight);
+        // console.log("addMarker percent: " + percent);
+        // console.log("addMarker rawValue: " + rawValue);
+        // console.log("addMarker markerValue: " + markerValue);
+
+        // avoid repeated updates of the same value
+        if (
+            markerValue === this.state.mainThumbValues ||
+            markerValue === markerArray.includes(markerValue)
+        ) { return; }
+
+        // percentage of the range to render the track/thumb to
+        const ratio = (markerValue - minValue) * 100 / (maxValue - minValue);
+        this.setState({
+            percent,
+            markerValues : [...this.state.markerValues, markerValue],
+            markerRatios : [...this.state.markerRatios, ratio],
+            markerPositions : [...this.state.markerPositions, currentPosition]
+        }, this.handleChange);
+
+        console.log(this.state.markerValues);
+        // console.log("addMarker Ratio: " + ratio);
+
+    }
+
     render() {
-        console.log(this.state);
-        console.log("ratio: " + this.state.ratio);
+        //console.log(this.state);
+        //console.log("ratio: " + this.state.ratio);
         const {
+            clsName,
             vertical,
             sliderSize,
             disableThumb,
@@ -240,7 +323,7 @@ export default class Slider extends Component {
             eventWrapperPadding
         } = this.props;
 
-        console.log(this.props);
+        //console.log(this.props);
         const eventWrapperStyle = {
             height: '100%',
             position: 'relative',
@@ -262,13 +345,14 @@ export default class Slider extends Component {
         };
         return ( 
             <div
-                style={eventWrapperStyle}
+                className={`${clsName}-slider`}
                 onMouseDown={this.onInteractionStart}
                 onTouchStart={this.onInteractionStart}
-                onMouseUp={this.onInteractionEnd}
-                onTouchEnd={this.onInteractionEnd}
+                style={eventWrapperStyle}
+
             >
                 <div
+                    className={`${clsName}-line`}
                     ref="slider"
                     style={sliderStyle}
                 >
@@ -284,7 +368,23 @@ export default class Slider extends Component {
                         position={this.state.ratio}
                         sliderSize={sliderSize}
                         thumbSize={this.state.thumbSize}
-                        value={this.state.value} />
+                        value={this.state.value}
+                    />
+                    {
+                        this.state.markerPositions.length > 0 &&
+                            this.state.markerValues.map((markerValue, index) =>
+                                (
+                                    <Marker
+                                        color='yellow'
+                                        key={index}
+                                        markerNumber={index}
+                                        markerSize={this.state.markerSize}
+                                        position={markerValue}
+                                        sliderSize={sliderSize}
+                                    />
+                                )
+                            )
+                    }
                 </div>
             </div>
         );
@@ -296,10 +396,11 @@ export default class Slider extends Component {
 
 Slider.propTypes = {
     clsName: PropTypes.string,
+    dynamic: PropTypes.bool,
     handleCount: PropTypes.number,
     minValue: PropTypes.number,
     maxValue: PropTypes.number,
-    // markValues: PropTypes.arrayOf(PropTypes.number),
+    // markerValues: PropTypes.arrayOf(PropTypes.number),
     onChange: PropTypes.func,
     onChangeComplete: PropTypes.func,
     id: PropTypes.string,
@@ -307,15 +408,15 @@ Slider.propTypes = {
     trackColor: PropTypes.string,
     thumbColor: PropTypes.string,
     disableThumb: PropTypes.bool,
-    mainThumbValue: PropTypes.number
+    mainThumbValue: PropTypes.number,
 };
 
 Slider.defaultProps = {
-    clsName: "",
+    clsName: "dynamic-slider",
     handleCount: 2,
     minValue: 0,
     maxValue: 100,
-    markValues: {},
+    markerValues: {},
     onChange: noop,
     onChangeComplete: noop,
     sliderColor: 'blue',
@@ -323,6 +424,6 @@ Slider.defaultProps = {
     thumbColor: 'red',
     id: null,
     disableThumb: false,
-    sliderSize: 50,
+    sliderSize: 30,
     mainThumbValue: 0
 };

@@ -3,18 +3,22 @@ import PropTypes from 'prop-types';
 
 export default class Thumb extends Component {
     render() {
-        let defaultThumb,
-            sliderSize = this.props.sliderSize,
-            thumbSize = this.props.thumbSize,
-            position = this.props.position,
-            color = this.props.color;
+
+        let {
+            clsName,
+            color,
+            defaultThumb,
+            position,
+            sliderSize,
+            thumbSize
+        } = this.props;
 
         console.log("position: " + this.props.position);
 
         const thumbCentering = (sliderSize - thumbSize) * 0.5;
         const thumbWrapperStyles = {
             position: 'absolute',
-            left: position,
+            left: `${position}%`,
             top: '0px',
             bottom: undefined,
             marginTop: `${thumbCentering}px`,
@@ -32,7 +36,10 @@ export default class Thumb extends Component {
         }
 
         return (
-            <div style={thumbWrapperStyles}>
+            <div
+                className={`${clsName}-thumb`} 
+                style={thumbWrapperStyles}
+            >
                 {this.props.customThumb}
                 {defaultThumb && defaultThumb}
             </div>
@@ -41,15 +48,17 @@ export default class Thumb extends Component {
 }
 
 Thumb.propTypes = {
-    position: PropTypes.number,
-    offsetTop: PropTypes.number,
+    clsName: PropTypes.string,
+    color: PropTypes.string,
+    customThumb: PropTypes.node,
     offsetLeft: PropTypes.number,
+    offsetTop: PropTypes.number,
+    position: PropTypes.number,
     sliderSize: PropTypes.number,
     thumbSize: PropTypes.number,
-    color: PropTypes.string,
-    customThumb: PropTypes.node
 };
 
 Thumb.defaultProps = {
-    position: 20
+    clsName: 'dynamic-slider',
+    position: 0,
 };
