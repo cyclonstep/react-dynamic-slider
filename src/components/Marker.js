@@ -26,7 +26,8 @@ export default class Marker extends Component {
             bottom: undefined,
             marginTop: `${markerCentering}px`,
             marginLeft: `-${markerSize * 0.5}px`,
-            marginBottom: undefined
+            marginBottom: undefined,
+            display: position === 0 ? 'none' : 'block'
         };
 
         if (!this.props.customMarker) {

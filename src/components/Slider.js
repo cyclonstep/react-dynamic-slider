@@ -29,15 +29,10 @@ export default class Slider extends Component {
         this.onInteractionStart = this.onInteractionStart.bind(this);
         this.onMouseOrTouchMove = this.onMouseOrTouchMove.bind(this);
         this.onInteractionEnd = this.onInteractionEnd.bind(this);
-        this.onDynamicThumbInteraction = this.onDynamicThumbInteraction.bind(this);
     }
     
     componentWillMount() {
         this.propsToState(this.props);
-    }
-
-    componentDidMount() {
-
     }
 
     componentWillReceiveProps(nextProps) {
@@ -61,6 +56,7 @@ export default class Slider extends Component {
         this.setState({
             drag: false,
         });
+        this.props.onChangeComplete(this.state);
         this.removeEvents();
     }
 
@@ -69,11 +65,6 @@ export default class Slider extends Component {
         if (!this.state.drag) {return;};
         this.updateSliderValue(e, eventType);
         e.stopPropagation();
-    }
-
-    onDynamicThumbInteraction(e) {
-        console.log(e);
-        console.log("masuk dynamic thumb loh");
     }
 
     getSliderInfo() {
@@ -110,44 +101,35 @@ export default class Slider extends Component {
     }
 
     updateSliderValue(e, eventType) {
-        const { maxValue, minValue } = this.state;
+        const { maxValue, minValue, dynamic } = this.state;
         let { mainThumbValue } = this.state;
         let xCoords;
 
-        if (!this.state.dynamic) {
+        if (!dynamic) {
             xCoords = (eventType !== 'touch' ? e.pageX: e.touches[0].pageX) - window.pageXOffset;
         } else {
-            let currentPosition = this.state.currentPosition;
-            // let currPlusThumb = currentPosition + (this.state.thumbSize * 3);
-            // xCoords = (e.pageX <= currPlusThumb ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
-            let maxThumbArea = currentPosition + (this.state.thumbSize);
-            let minThumbArea = currentPosition - (this.state.thumbSize);
-            xCoords = ((e.pageX >= minThumbArea) && (e.pageX <= maxThumbArea) ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
-            
+            const currentPosition = this.state.currentPosition + this.getSliderInfo().bounds.left;
+            let maxThumbArea = currentPosition + (this.state.thumbSize * 0.5);
+            let minThumbArea = currentPosition - (this.state.thumbSize * 0.5);
+
             console.log("maxThumbArea: " + maxThumbArea);
             console.log("minThumbArea: " + minThumbArea);
-            console.log("current pos: " + currentPosition);
-            // console.log("currPlusThumb: " + currPlusThumb);
+
+            xCoords = ((e.pageX >= minThumbArea) && (e.pageX <= maxThumbArea) ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
+
             console.log("e.pageX: " + e.pageX);
-            console.log("window.pageXOffset: " + window.pageXOffset);
             console.log("xCoords: " + xCoords);
+            
             if (xCoords === (this.getSliderInfo().bounds.left - window.pageXOffset)) {
                 let markPosition = e.pageX - window.pageXOffset;
-                // add the marker
-                if (!this.state.drag){
-                    this.addMarker(markPosition);
-                }
+                if (!this.state.drag) {this.addMarker(markPosition);}
             } else {
-                // Hacky, but still need this one to handle the slider's drag
-                this.setState({
-                    drag: true
-                });
+                this.setState({ drag: true });
             }
         }
         // compare position to slider length to get percentage
-        let currentPosition;
         let lengthOrHeight;
-        currentPosition = xCoords - this.getSliderInfo().bounds.left;
+        let currentPosition = xCoords - this.getSliderInfo().bounds.left;
         lengthOrHeight = this.getSliderInfo().length;
         const percent = this.clampValue(+(currentPosition / lengthOrHeight).toFixed(2), 0, 1);
         // convert percent -> value the match value to notch as per props/state.step
@@ -156,7 +138,11 @@ export default class Slider extends Component {
         // avoid repeated updates of the same value
         if (mainThumbValue === this.state.mainThumbValues) {return;}
         // percentage of the range to render the track/thumb to
-        const ratio = (mainThumbValue - minValue) * 100 / (maxValue - minValue);
+        let ratio = (mainThumbValue - minValue) * 100 / (maxValue - minValue);
+        // forcing the thumb to the most left of slider
+        if (ratio === 1) {
+            ratio = 0;
+        }
         this.setState({
             percent,
             mainThumbValue,
@@ -169,17 +155,68 @@ export default class Slider extends Component {
         this.props.onChange(this.state);
     }
 
+    handleAddMarker() {
+        let { min, max } = this.maxMinMarkerValues();
+        let { lockToMinMark, lockToMaxMark } = this.props;
+        
+        if (lockToMinMark === true) {
+            this.moveMainThumb(min);
+        } else if (lockToMaxMark === true) {
+            this.moveMainThumb(max);
+        }
+
+        this.props.onAddMarker(this.state);
+    }
+
+    maxMinMarkerValues(){
+        const markerValuesArray = this.state.markerValues,
+            markerPositionsArray = this.state.markerPositions,
+            markerRatiosArray = this.state.markerRatios,
+            markerPercentsArray = this.state.markerPercents;
+
+        let minValuesVal = Math.min(...markerValuesArray),
+            minPositionsVal = Math.min(...markerPositionsArray),
+            minRatiosVal = Math.min(...markerRatiosArray),
+            minPercentsVal = Math.min(...markerPercentsArray),
+            maxValuesVal = Math.max(...markerValuesArray),
+            maxPositionsVal = Math.max(...markerPositionsArray),
+            maxRatiosVal = Math.max(...markerRatiosArray),
+            maxPercentsVal = Math.max(...markerPercentsArray);
+
+        return {
+            min : {
+                values: minValuesVal,
+                positions: minPositionsVal,
+                ratios: minRatiosVal,
+                percents: minPercentsVal
+            },
+            max : {
+                values: maxValuesVal,
+                positions: maxPositionsVal,
+                ratios: maxRatiosVal,
+                percents: maxPercentsVal
+            }
+        };
+    }
+
+    moveMainThumb(value) {
+        this.setState({
+            mainThumbValue: value.values,
+            percent: value.percents,
+            ratio : value.ratios,
+            currentPosition: value.positions
+        });
+    }
+
+
     valueFromPercent(percentage) {
         const { range, minValue } = this.state;
-        //console.log("range: " + range);
         const val = (range * percentage) + minValue;
-        //console.log("val: " + val);
         return val;
     }
 
     calculateMatchingNotch(value) {
         const { step, maxValue, minValue } = this.state;
-        //console.log("step: " + step);
         const values = [];
         for (let i = minValue; i <= maxValue; i++) {
             values.push(i);
@@ -260,9 +297,6 @@ export default class Slider extends Component {
         const range = maxValue - minValue;
         // const checkVal = markerValues[0] === undefined ? 0 : markerValues[0];
         const ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
-        //console.log("markerValues[0]: " + markerValues[0]);
-        //console.log("range: " + range);
-        //console.log("ratio: " + ratio);
 
         this.setState(prevState => ({
             minValue,
@@ -293,12 +327,6 @@ export default class Slider extends Component {
         // get slider's max and min value
         const { maxValue, minValue } = this.state;
 
-        // console.log("addMarker position: " + currentPosition);
-        // console.log("addMarker lengthorh: " + lengthOrHeight);
-        // console.log("addMarker percent: " + percent);
-        // console.log("addMarker rawValue: " + rawValue);
-        // console.log("addMarker markerValue: " + markerValue);
-
         // avoid repeated updates of the same value
         if (
             markerValue === this.state.mainThumbValues ||
@@ -318,7 +346,7 @@ export default class Slider extends Component {
                     newRatiosArr = this.state.markerRatios.slice(1),
                     newPercsArr  = this.state.markerPercents.slice(1),
                     newPosArr    = this.state.markerPositions.slice(1);
-            }
+            } 
             return {
                 percent,
                 markerValues : newValuesArr ? [...newValuesArr, markerValue] : [...prevState.markerValues, markerValue],
@@ -327,7 +355,7 @@ export default class Slider extends Component {
                 markerPercents : newPercsArr ? [...newPercsArr, percent] : [...prevState.markerPercents, percent]
             };
 
-        }, this.handleChange);
+        }, this.handleAddMarker);
 
         console.log(this.state.markerValues);
         // console.log("addMarker Ratio: " + ratio);
@@ -335,8 +363,6 @@ export default class Slider extends Component {
     }
 
     render() {
-        //console.log(this.state);
-        //console.log("ratio: " + this.state.ratio);
         console.log(this.state.markerValues);
         console.log(this.state.markerPositions);
         console.log(this.state.markerPercents);
@@ -435,6 +461,7 @@ Slider.propTypes = {
     // markerValues: PropTypes.arrayOf(PropTypes.number),
     onChange: PropTypes.func,
     onChangeComplete: PropTypes.func,
+    onAddMarker: PropTypes.func,
     id: PropTypes.string,
     sliderColor: PropTypes.string,
     trackColor: PropTypes.string,
@@ -456,11 +483,14 @@ Slider.defaultProps = {
     markerPercents: [],
     onChange: noop,
     onChangeComplete: noop,
+    onAddMarker: noop,
     sliderColor: 'blue',
     trackColor: 'green',
     thumbColor: 'red',
     id: null,
     disableThumb: false,
-    sliderSize: 15,
-    mainThumbValue: 0
+    sliderSize: 30,
+    mainThumbValue: 0,
+    lockToMinMark : true,
+    lockToMaxMark : false
 };
