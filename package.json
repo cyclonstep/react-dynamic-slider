@@ -5,8 +5,8 @@
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel lib -d build",
-    "lint": "eslint lib/**; exit 0",
+    "build": "babel src -d build",
+    "lint": "eslint src/**; exit 0",
     "lint:watch": "esw -w lib/**",
     "prepublish": "npm run build",
     "start": "webpack-dev-server --inline --hot --colors"

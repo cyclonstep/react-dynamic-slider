@@ -14,10 +14,6 @@ module.exports = {
         libraryTarget: 'commonjs2'
     },
     devtool: 'inline-source-map',
-    externals: {
-        react: 'react',
-        'react-dom': 'react-dom'
-    },
     module: {
         rules: [
             // First Rule
@@ -66,7 +62,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            react: path.resolve('../node_modules/react')
+            react: path.resolve('./node_modules/react')
         }
     }
 };
