@@ -2,6 +2,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class Thumb extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            limitMax: 100,
+            limitMin: 0
+        };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
+        if (nextProps.dynamic) {
+            this.setState({
+                limitMax: nextProps.limitMax,
+                limitMin: nextProps.limitMin
+            });
+        }
+    }
+
     render() {
 
         let {
@@ -12,6 +31,12 @@ export default class Thumb extends Component {
             sliderSize,
             thumbSize
         } = this.props;
+
+        if (position > this.state.limitMax) {
+            position = this.state.limitMax;
+        } else if (position < this.state.limitMin) {
+            position = this.state.limitMin;
+        }
 
         console.log("position: " + this.props.position);
 
@@ -51,6 +76,8 @@ Thumb.propTypes = {
     clsName: PropTypes.string,
     color: PropTypes.string,
     customThumb: PropTypes.node,
+    limitMax: PropTypes.number,
+    limitMin: PropTypes.number,
     offsetLeft: PropTypes.number,
     offsetTop: PropTypes.number,
     position: PropTypes.number,

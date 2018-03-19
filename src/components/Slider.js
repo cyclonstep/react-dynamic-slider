@@ -23,7 +23,10 @@ export default class Slider extends Component {
             markerRatios: [],
             step: 1,
             dynamic: true,
-  
+            atobwidth: 0,
+            markerRatio: 0,
+            limitMax: 100,
+            limitMin: 0
         };
 
         this.onInteractionStart = this.onInteractionStart.bind(this);
@@ -158,12 +161,22 @@ export default class Slider extends Component {
     handleAddMarker() {
         let { min, max } = this.maxMinMarkerValues();
         let { lockToMinMark, lockToMaxMark } = this.props;
+
+        let atobwidth = Math.abs(max.ratios - min.ratios);
+        let markerRatio = min.ratios;
         
         if (lockToMinMark === true) {
             this.moveMainThumb(min);
         } else if (lockToMaxMark === true) {
             this.moveMainThumb(max);
         }
+        
+        if (this.state.markerRatios.length > 0) {
+            this.moveTrack(atobwidth, markerRatio);
+
+        }
+
+        this.setLimit(min.ratios, max.ratios);
 
         this.props.onAddMarker(this.state);
     }
@@ -205,6 +218,20 @@ export default class Slider extends Component {
             percent: value.percents,
             ratio : value.ratios,
             currentPosition: value.positions
+        });
+    }
+
+    moveTrack(atobwidth, markerRatio) {
+        this.setState({
+            atobwidth: atobwidth,
+            markerRatio: markerRatio
+        });
+    }
+
+    setLimit(min, max) {
+        this.setState({
+            limitMax: max,
+            limitMin: min
         });
     }
 
@@ -418,13 +445,18 @@ export default class Slider extends Component {
                 >
                     <Track
                         color={trackColor}
-                        length={this.state.ratio}
+                        dynamic={this.state.dynamic}
+                        length={!this.state.dynamic ? this.state.ratio : this.state.atobwidth}
+                        startFrom={!this.state.dynamic ? 0 : this.state.markerRatio}
                         vertical={vertical}
                     />
                     <Thumb
                         color={thumbColor}
                         customThumb={children}
                         disableThumb={disableThumb}
+                        dynamic={this.state.dynamic}
+                        limitMax={this.state.limitMax}
+                        limitMin={this.state.limitMin}
                         position={this.state.ratio}
                         sliderSize={sliderSize}
                         thumbSize={this.state.thumbSize}
@@ -487,6 +519,7 @@ Slider.defaultProps = {
     markerRatios: [],
     markerPositions: [],
     markerPercents: [],
+    markerColor: 'yellow',
     onChange: noop,
     onChangeComplete: noop,
     onAddMarker: noop,
