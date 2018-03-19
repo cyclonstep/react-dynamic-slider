@@ -11,26 +11,15 @@ module.exports = {
     output: {
         filename: 'bundle.[hash].js',
         publicPath: '/',
-        libraryTarget: 'commonjs2'
     },
     devtool: 'inline-source-map',
-    externals: {
-        react: 'react',
-        'react-dom': 'react-dom'
-    },
     module: {
         rules: [
             // First Rule
             {
-                test: /\.(js)$/,
-                include: path.resolve(__dirname, 'src'),
-                exclude: /(node_modules|bower_components|build)/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['env']
-                    }
-                }
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader'
             },
             // Second Rule
             {
@@ -64,9 +53,4 @@ module.exports = {
         open: true,
         hot:true
     },
-    resolve: {
-        alias: {
-            react: path.resolve('../node_modules/react')
-        }
-    }
 };

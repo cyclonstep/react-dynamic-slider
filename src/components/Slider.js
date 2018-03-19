@@ -401,6 +401,7 @@ export default class Slider extends Component {
             },
             get width() { return !vertical ? '100%' : `${sliderSize}px`;}
         };
+        
         return ( 
             <div
                 className={`${clsName}-slider`}
