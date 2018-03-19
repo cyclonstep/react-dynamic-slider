@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 
 const port = process.env.PORT || 3000;
@@ -7,7 +8,7 @@ const port = process.env.PORT || 3000;
 module.exports = {
     // Webpack config here
     mode: 'development',
-    entry: ['react-hot-loader/patch','./examples/index.js'],
+    entry: ['./examples/index.js'],
     output: {
         filename: 'bundle.[hash].js',
         publicPath: '/',
@@ -24,6 +25,7 @@ module.exports = {
             // Second Rule
             {
                 test: /\.css$/,
+                exclude: /node_modules/,
                 use: [
                     {
                         loader: 'style-loader'
@@ -44,7 +46,7 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({
             template: 'examples/example.html'
-        })
+        }),
     ],
     devServer: {
         host: 'localhost',
@@ -53,4 +55,15 @@ module.exports = {
         open: true,
         hot:true
     },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                common: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    }
 };
