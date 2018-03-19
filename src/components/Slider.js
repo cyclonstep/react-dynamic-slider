@@ -377,6 +377,7 @@ export default class Slider extends Component {
             label,
             trackColor,
             thumbColor,
+            markerColor,
             verticalSliderHeight,
             eventWrapperPadding
         } = this.props;
@@ -434,7 +435,7 @@ export default class Slider extends Component {
                             this.state.markerValues.map((markerValue, index) =>
                                 (
                                     <Marker
-                                        color='yellow'
+                                        color={markerColor}
                                         key={index}
                                         markerNumber={index}
                                         markerSize={this.state.markerSize}
@@ -457,15 +458,19 @@ Slider.propTypes = {
     clsName: PropTypes.string,
     dynamic: PropTypes.bool,
     markerCount: PropTypes.number,
+    markerSize: PropTypes.number,
+    markerColor: PropTypes.string,
     minValue: PropTypes.number,
     maxValue: PropTypes.number,
-    // markerValues: PropTypes.arrayOf(PropTypes.number),
     onChange: PropTypes.func,
     onChangeComplete: PropTypes.func,
     onAddMarker: PropTypes.func,
     id: PropTypes.string,
+    sliderSize: PropTypes.string,
     sliderColor: PropTypes.string,
+    trackSize: PropTypes.number,
     trackColor: PropTypes.string,
+    thumbSize: PropTypes.number,
     thumbColor: PropTypes.string,
     disableThumb: PropTypes.bool,
     mainThumbValue: PropTypes.number,
