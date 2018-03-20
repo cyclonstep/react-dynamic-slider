@@ -316,7 +316,7 @@ export default class Slider extends Component {
             thumbSize = (this.props.disableThumb ? 0 : sliderSize * 2);
         }
         if (props.markerSize === undefined) {
-            markerSize = sliderSize * 0.5;
+            markerSize = sliderSize;
         }
         //console.log("thumbSize after: " + thumbSize);
 
@@ -450,6 +450,21 @@ export default class Slider extends Component {
                         startFrom={!this.state.dynamic ? 0 : this.state.markerRatio}
                         vertical={vertical}
                     />
+                    {
+                        this.state.markerPositions.length > 0 &&
+                        this.state.markerValues.map((markerValue, index) =>
+                            (
+                                <Marker
+                                    color={markerColor}
+                                    key={index}
+                                    markerNumber={index}
+                                    markerSize={this.state.markerSize}
+                                    position={markerValue}
+                                    sliderSize={sliderSize}
+                                />
+                            )
+                        )
+                    }
                     <Thumb
                         color={thumbColor}
                         customThumb={children}
@@ -462,21 +477,6 @@ export default class Slider extends Component {
                         thumbSize={this.state.thumbSize}
                         value={this.state.value}
                     />
-                    {
-                        this.state.markerPositions.length > 0 &&
-                            this.state.markerValues.map((markerValue, index) =>
-                                (
-                                    <Marker
-                                        color={markerColor}
-                                        key={index}
-                                        markerNumber={index}
-                                        markerSize={this.state.markerSize}
-                                        position={markerValue}
-                                        sliderSize={sliderSize}
-                                    />
-                                )
-                            )
-                    }
                 </div>
             </div>
         );

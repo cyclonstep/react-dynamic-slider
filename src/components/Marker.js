@@ -10,7 +10,7 @@ export default class Marker extends Component {
             position,
             sliderSize,
             markerSize,
-            markerNumber
+            markerNumber,
         } = this.props;
         
         const markerCentering = (sliderSize - markerSize) * 0.5;
@@ -24,8 +24,6 @@ export default class Marker extends Component {
             left: `${position}%`,
             top: '0px',
             bottom: undefined,
-            marginTop: `${markerCentering}px`,
-            marginLeft: `-${markerSize * 0.5}px`,
             marginBottom: undefined,
             display: position === 0 ? 'none' : 'block'
         };
@@ -33,9 +31,8 @@ export default class Marker extends Component {
         if (!this.props.customMarker) {
             const defaultMarkerStyles = {
                 backgroundColor: color,
-                borderRadius: '100%',
                 height: `${markerSize}px`,
-                width: `${markerSize}px`
+                width: '2px'
             };
             defaultMarker = <div style={defaultMarkerStyles} />;
         }
@@ -61,7 +58,7 @@ Marker.propTypes = {
     position: PropTypes.number,
     sliderSize: PropTypes.number,
     markerSize: PropTypes.number,
-    markerNumber: PropTypes.number
+    markerNumber: PropTypes.number,
 };
 
 Marker.defaultProps = {
