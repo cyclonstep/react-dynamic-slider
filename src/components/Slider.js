@@ -411,7 +411,6 @@ export default class Slider extends Component {
 
         //console.log(this.props);
         const eventWrapperStyle = {
-            height: '100%',
             position: 'relative',
             cursor: 'pointer',
             margin: '0 auto',
