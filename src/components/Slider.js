@@ -497,7 +497,7 @@ Slider.propTypes = {
     onChangeComplete: PropTypes.func,
     onAddMarker: PropTypes.func,
     id: PropTypes.string,
-    sliderSize: PropTypes.string,
+    sliderSize: PropTypes.number,
     sliderColor: PropTypes.string,
     trackSize: PropTypes.number,
     trackColor: PropTypes.string,
