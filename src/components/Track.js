@@ -15,7 +15,7 @@ export default class Track extends Component {
             height: '100%'
         };
 
-        console.log(trackStyles);
+        // console.log(trackStyles);
 
         return (
             <div  

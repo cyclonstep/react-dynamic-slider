@@ -12,7 +12,7 @@ export default class Thumb extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
+        // console.log(nextProps);
         if (nextProps.dynamic) {
             this.setState({
                 limitMax: nextProps.limitMax,
@@ -38,7 +38,7 @@ export default class Thumb extends Component {
             position = this.state.limitMin;
         }
 
-        console.log("position: " + this.props.position);
+        // console.log("position: " + this.props.position);
 
         const thumbCentering = (sliderSize - thumbSize) * 0.5;
         const thumbWrapperStyles = {

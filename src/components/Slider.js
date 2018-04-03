@@ -44,7 +44,7 @@ export default class Slider extends Component {
 
     onInteractionStart(e) {
         const eventType = (e.touches !== undefined ? 'touch' : 'mouse');
-        console.log(eventType);
+        // console.log(eventType);
         const leftMouseButton = 0;
         if ((eventType === 'mouse') && (e.button !== leftMouseButton)) { return; }
         this.updateSliderValue(e, eventType);
@@ -105,30 +105,29 @@ export default class Slider extends Component {
 
     updateSliderValue(e, eventType) {
         const { maxValue, minValue, dynamic } = this.state;
-        let { mainThumbValue } = this.state;
-        let xCoords;
+        let { mainThumbValue } = this.state;        
+        
+        let xCoords = (eventType !== 'touch' ? e.pageX : e.touches[0].pageX) - window.pageXOffset;
 
-        if (!dynamic) {
-            xCoords = (eventType !== 'touch' ? e.pageX: e.touches[0].pageX) - window.pageXOffset;
-        } else {
+        if (dynamic) {
             const currentPosition = this.state.currentPosition + this.getSliderInfo().bounds.left;
+
             let maxThumbArea = currentPosition + (this.state.thumbSize * 0.5);
             let minThumbArea = currentPosition - (this.state.thumbSize * 0.5);
-
-            console.log("maxThumbArea: " + maxThumbArea);
-            console.log("minThumbArea: " + minThumbArea);
-
-            xCoords = ((e.pageX >= minThumbArea) && (e.pageX <= maxThumbArea) ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
-
-            console.log("e.pageX: " + e.pageX);
-            console.log("xCoords: " + xCoords);
+            let thumbXCoords = ((e.pageX >= minThumbArea) && (e.pageX <= maxThumbArea) ? e.pageX : this.getSliderInfo().bounds.left) - window.pageXOffset;
             
-            if (xCoords === (this.getSliderInfo().bounds.left - window.pageXOffset)) {
+            if (thumbXCoords === (this.getSliderInfo().bounds.left - window.pageXOffset)) {
                 let markPosition = e.pageX - window.pageXOffset;
                 if (!this.state.drag) {this.addMarker(markPosition);}
             } else {
                 this.setState({ drag: true });
             }
+
+            // console.log("maxThumbArea: " + maxThumbArea);
+            // console.log("minThumbArea: " + minThumbArea);
+            // console.log("e.pageX: " + e.pageX);
+            // console.log("xCoords: " + xCoords);
+            // console.log("thumbXCoords: " + thumbXCoords);
         }
         // compare position to slider length to get percentage
         let lengthOrHeight;
@@ -322,8 +321,14 @@ export default class Slider extends Component {
 
         const { minValue, maxValue, id } = props;
         const range = maxValue - minValue;
-        // const checkVal = markerValues[0] === undefined ? 0 : markerValues[0];
-        const ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
+        let value = (props.value > 100 ? 100 : props.value);
+        let ratio;
+
+        if (value && value > 0) {
+            ratio = Math.max((value - minValue), 0) * 100 / (maxValue - minValue);
+        } else {
+            ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
+        }
 
         this.setState(prevState => ({
             minValue,
@@ -337,8 +342,8 @@ export default class Slider extends Component {
     }
 
     addMarker(markerPosition) {
-        console.log("!MARK START!");
-        console.log("addMarker markerPosition: " + markerPosition);
+        // console.log("!MARK START!");
+        // console.log("addMarker markerPosition: " + markerPosition);
 
         // compare position to slider length to get percentage
         let currentPosition = markerPosition - this.getSliderInfo().bounds.left,
@@ -362,7 +367,7 @@ export default class Slider extends Component {
 
         // check if marker is more than markerCount, if it is a yes, 
         // use immutable shift for FIFO : (arr.slice(1))
-        console.log(this.state.markerValues.length);
+        // console.log(this.state.markerValues.length);
 
         // percentage of the range to render the track/thumb to
         const ratio = (markerValue - minValue) * 100 / (maxValue - minValue);
@@ -384,16 +389,16 @@ export default class Slider extends Component {
 
         }, this.handleAddMarker);
 
-        console.log(this.state.markerValues);
+        // console.log(this.state.markerValues);
         // console.log("addMarker Ratio: " + ratio);
 
     }
 
     render() {
-        console.log(this.state.markerValues);
-        console.log(this.state.markerPositions);
-        console.log(this.state.markerPercents);
-        console.log(this.state.markerRatios);
+        // console.log(this.state.markerValues);
+        // console.log(this.state.markerPositions);
+        // console.log(this.state.markerPercents);
+        // console.log(this.state.markerRatios);
         const {
             clsName,
             vertical,
@@ -506,7 +511,8 @@ Slider.propTypes = {
     disableThumb: PropTypes.bool,
     mainThumbValue: PropTypes.number,
     lockToMinMark: PropTypes.bool,
-    lockToMaxMark: PropTypes.bool
+    lockToMaxMark: PropTypes.bool,
+    value: PropTypes.number
 };
 
 Slider.defaultProps = {
@@ -530,5 +536,6 @@ Slider.defaultProps = {
     sliderSize: 30,
     mainThumbValue: 0,
     lockToMinMark : true,
-    lockToMaxMark : false
+    lockToMaxMark : false,
+    value: 0
 };
