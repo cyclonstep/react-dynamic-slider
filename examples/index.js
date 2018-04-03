@@ -6,6 +6,6 @@ import Slider from '../src/components/Slider';
 const rootEl = document.getElementById('app');
 
 ReactDOM.render(
-    <Slider />,
+    <Slider dynamic={false}/>,
     rootEl
 );

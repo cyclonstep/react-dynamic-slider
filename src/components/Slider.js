@@ -149,7 +149,8 @@ export default class Slider extends Component {
             percent,
             mainThumbValue,
             ratio,
-            currentPosition
+            currentPosition,
+            dynamic
         }, this.handleChange);
     }
 
