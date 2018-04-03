@@ -150,7 +150,6 @@ export default class Slider extends Component {
             mainThumbValue,
             ratio,
             currentPosition,
-            dynamic
         }, this.handleChange);
     }
 
@@ -320,7 +319,7 @@ export default class Slider extends Component {
         }
         //console.log("thumbSize after: " + thumbSize);
 
-        const { minValue, maxValue, id } = props;
+        const { minValue, maxValue, id, dynamic } = props;
         const range = maxValue - minValue;
         let value = (props.value > 100 ? 100 : props.value);
         let ratio;
@@ -338,7 +337,8 @@ export default class Slider extends Component {
             ratio,
             thumbSize,
             markerSize,
-            id
+            id,
+            dynamic
         }));        
     }
 
@@ -414,6 +414,8 @@ export default class Slider extends Component {
             verticalSliderHeight,
             eventWrapperPadding
         } = this.props;
+
+        console.log("markerCount: " + this.state.markerCount);
 
         //console.log(this.props);
         const eventWrapperStyle = {
