@@ -1,6 +1,6 @@
 {
   "name": "react-dynamic-slider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "This is an ease-to-use dynamic slider for react",
   "main": "build/index.js",
   "scripts": {
