@@ -293,19 +293,23 @@ export default class Slider extends Component {
             for (let i = 0; i < markerCount; i++) {
                 console.log("i di marker values: " + i);
                 if (markerValues.length > 0) {
-                    this.setState(prevState => ({
-                        markerValues: [...prevState.markerValues, markerValues[i]],
-                        markerRatios: [...prevState.markerRatios, markerRatios[i]],
-                        markerPercents: [...prevState.markerPercents, markerPercents[i]],
-                        markerPositions: [...prevState.markerPositions, markerPositions[i]]
-                    }));
+                    if (this.state.markerValues.length < markerCount) {
+                        this.setState(prevState => ({
+                            markerValues: [...prevState.markerValues, markerValues[i]],
+                            markerRatios: [...prevState.markerRatios, markerRatios[i]],
+                            markerPercents: [...prevState.markerPercents, markerPercents[i]],
+                            markerPositions: [...prevState.markerPositions, markerPositions[i]]
+                        }));
+                    }
                 } else {
-                    this.setState(prevState => ({
-                        markerValues: [...prevState.markerValues, ...[0]],
-                        markerRatios: [...prevState.markerRatios, ...[0]],
-                        markerPercents: [...prevState.markerPercents, ...[0]],
-                        markerPositions: [...prevState.markerPositions, ...[0]]
-                    }));
+                    if (this.state.markerValues.length < markerCount) {
+                        this.setState(prevState => ({
+                            markerValues: [...prevState.markerValues, ...[0]],
+                            markerRatios: [...prevState.markerRatios, ...[0]],
+                            markerPercents: [...prevState.markerPercents, ...[0]],
+                            markerPositions: [...prevState.markerPositions, ...[0]]
+                        }));
+                    }
                 }
             }
         }
