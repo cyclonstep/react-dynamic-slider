@@ -289,7 +289,9 @@ export default class Slider extends Component {
         }
 
         if ( markerValues !== undefined || markerValues.length !== 0) {
+            console.log("markerCount: " + markerCount);
             for (let i = 0; i < markerCount; i++) {
+                console.log("i di marker values: " + i);
                 if (markerValues.length > 0) {
                     this.setState(prevState => ({
                         markerValues: [...prevState.markerValues, markerValues[i]],
