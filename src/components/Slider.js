@@ -59,7 +59,7 @@ export default class Slider extends Component {
         this.setState({
             drag: false,
         });
-        this.props.onChangeComplete(this.state);
+        this.handleChangeComplete();
         this.removeEvents();
     }
 
@@ -155,6 +155,10 @@ export default class Slider extends Component {
 
     handleChange() {
         this.props.onChange(this.state);
+    }
+
+    handleChangeComplete() {
+        this.props.onChangeComplete(this.state);
     }
 
     handleAddMarker() {
@@ -289,9 +293,9 @@ export default class Slider extends Component {
         }
 
         if ( markerValues !== undefined || markerValues.length !== 0) {
-            console.log("markerCount: " + markerCount);
+            // console.log("markerCount: " + markerCount);
             for (let i = 0; i < markerCount; i++) {
-                console.log("i di marker values: " + i);
+                // console.log("i di marker values: " + i);
                 if (markerValues.length > 0) {
                     if (this.state.markerValues.length < markerCount) {
                         this.setState(prevState => ({
@@ -421,7 +425,7 @@ export default class Slider extends Component {
             eventWrapperPadding
         } = this.props;
 
-        console.log("markerCount: " + this.state.markerCount);
+        // console.log("markerCount: " + this.state.markerCount);
 
         //console.log(this.props);
         const eventWrapperStyle = {
