@@ -179,6 +179,7 @@ export default class Slider extends Component {
 
         }
 
+        this.releaseMainThumbLock();
         this.setLimit(min.ratios, max.ratios);
 
         this.props.onAddMarker(this.state);
@@ -216,11 +217,12 @@ export default class Slider extends Component {
     }
 
     moveMainThumb(value) {
+        this.setMainThumbLock();
         this.setState({
             mainThumbValue: value.values,
             percent: value.percents,
             ratio : value.ratios,
-            currentPosition: value.positions
+            currentPosition: value.positions,
         });
     }
 
@@ -234,7 +236,19 @@ export default class Slider extends Component {
     setLimit(min, max) {
         this.setState({
             limitMax: max,
-            limitMin: min
+            limitMin: min,
+        });
+    }
+    
+    setMainThumbLock() {
+        this.setState({
+            lock: true
+        });
+    }
+
+    releaseMainThumbLock() {
+        this.setState({
+            lock: false
         });
     }
 
