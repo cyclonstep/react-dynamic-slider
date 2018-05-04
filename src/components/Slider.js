@@ -361,6 +361,15 @@ export default class Slider extends Component {
             ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
         }
 
+        if (dynamic === false) {
+            this.setState(prevState => ({
+                markerPositions: [],
+                markerPercents: [],
+                markerValues: [],
+                markerRatios: [],
+            }));
+        }
+
         this.setState(prevState => ({
             minValue,
             maxValue,
