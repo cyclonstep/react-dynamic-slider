@@ -321,6 +321,7 @@ export default class Slider extends Component {
                 // console.log("i di marker values: " + i);
                 if (markerValues.length > 0) {
                     if (this.state.markerValues.length < markerCount) {
+                        console.log("markervalues setstate triger #2");
                         this.setState(prevState => ({
                             markerValues: [...prevState.markerValues, markerValues[i]],
                             markerRatios: [...prevState.markerRatios, markerRatios[i]],
@@ -330,6 +331,7 @@ export default class Slider extends Component {
                     }
                 } else {
                     if (this.state.markerValues.length < markerCount) {
+                        console.log("markervalues setstate triger #3");
                         this.setState(prevState => ({
                             markerValues: [...prevState.markerValues, ...[0]],
                             markerRatios: [...prevState.markerRatios, ...[0]],
@@ -398,6 +400,7 @@ export default class Slider extends Component {
 
         // put marker state array into array variable
         let markerArray     = this.state.markerValues;
+        console.log("markerArray: " + markerArray);
 
         // get slider's max and min value
         const { maxValue, minValue } = this.state;
@@ -433,7 +436,7 @@ export default class Slider extends Component {
             );  
             
             console.log("markerValue: " + markerValue);
-            
+            console.log("markerValue setstate #1");          
             return {
                 percent,
                 markerValues : newValuesArr ? [...newValuesArr, markerValue] : [...prevState.markerValues, markerValue],
