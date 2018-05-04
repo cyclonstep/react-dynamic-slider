@@ -162,6 +162,7 @@ export default class Slider extends Component {
 
     handleChangeComplete() {
         if (this.state.lock === true) {
+            this.releaseMainThumbLock();
             return;
         }
         this.props.onChangeComplete(this.state);
@@ -185,7 +186,7 @@ export default class Slider extends Component {
 
         }
 
-        this.releaseMainThumbLock();
+        // this.releaseMainThumbLock();
         this.setLimit(min.ratios, max.ratios);
 
         this.props.onAddMarker(this.state);
