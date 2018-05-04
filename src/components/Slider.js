@@ -154,10 +154,16 @@ export default class Slider extends Component {
     }
 
     handleChange() {
+        if (this.state.lock === true) {
+            return;
+        }
         this.props.onChange(this.state);
     }
 
     handleChangeComplete() {
+        if (this.state.lock === true) {
+            return;
+        }
         this.props.onChangeComplete(this.state);
     }
 
