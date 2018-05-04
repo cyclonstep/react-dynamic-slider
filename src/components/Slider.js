@@ -260,6 +260,16 @@ export default class Slider extends Component {
         });
     }
 
+    releaseDynamicValues() {
+        this.setState(prevState => ({
+            markerPositions: [],
+            markerPercents: [],
+            markerValues: [],
+            markerRatios: [],
+        }));
+        this.setLimit(0,100);
+    }
+
 
     valueFromPercent(percentage) {
         const { range, minValue } = this.state;
@@ -366,12 +376,8 @@ export default class Slider extends Component {
         }
 
         if (dynamic === false) {
-            this.setState(prevState => ({
-                markerPositions: [],
-                markerPercents: [],
-                markerValues: [],
-                markerRatios: [],
-            }));
+            // Release all if dynamic is false
+            this.releaseDynamicValues();
         }
 
         this.setState(prevState => ({
