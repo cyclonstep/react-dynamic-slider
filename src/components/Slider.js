@@ -400,7 +400,6 @@ export default class Slider extends Component {
 
         // put marker state array into array variable
         let markerArray     = this.state.markerValues;
-        console.log("markerArray: " + markerArray);
 
         // get slider's max and min value
         const { maxValue, minValue } = this.state;
@@ -424,19 +423,12 @@ export default class Slider extends Component {
                     newRatiosArr = this.state.markerRatios.slice(1),
                     newPercsArr  = this.state.markerPercents.slice(1),
                     newPosArr    = this.state.markerPositions.slice(1);
-
+                // React or browser bug? array position state change by itself
+                if (newValuesArr !== newRatiosArr) {
+                    newValuesArr = newRatiosArr;
+                }
             } 
-
-    
-            console.log(
-                "newValuesArr: " + newValuesArr + " " +
-                "newRatiosArr: " + newRatiosArr + " " +
-                "newPercsArr: " + newPercsArr + " " +
-                "newPosArr: " + newPosArr 
-            );  
-            
-            console.log("markerValue: " + markerValue);
-            console.log("markerValue setstate #1");          
+      
             return {
                 percent,
                 markerValues : newValuesArr ? [...newValuesArr, markerValue] : [...prevState.markerValues, markerValue],
