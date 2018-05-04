@@ -169,6 +169,7 @@ export default class Slider extends Component {
     }
 
     handleAddMarker() {
+        console.log(this.state.markerValues);
         let { min, max } = this.maxMinMarkerValues();
         let { lockToMinMark, lockToMaxMark } = this.props;
 
@@ -288,6 +289,7 @@ export default class Slider extends Component {
             }
             return prev;
         });
+        console.log("match: " + match);
         return match;
     }
 
@@ -419,7 +421,19 @@ export default class Slider extends Component {
                     newRatiosArr = this.state.markerRatios.slice(1),
                     newPercsArr  = this.state.markerPercents.slice(1),
                     newPosArr    = this.state.markerPositions.slice(1);
+
             } 
+
+    
+            console.log(
+                "newValuesArr: " + newValuesArr + " " +
+                "newRatiosArr: " + newRatiosArr + " " +
+                "newPercsArr: " + newPercsArr + " " +
+                "newPosArr: " + newPosArr 
+            );  
+            
+            console.log("markerValue: " + markerValue);
+            
             return {
                 percent,
                 markerValues : newValuesArr ? [...newValuesArr, markerValue] : [...prevState.markerValues, markerValue],

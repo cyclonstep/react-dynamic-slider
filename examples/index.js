@@ -7,7 +7,7 @@ const rootEl = document.getElementById('app');
 
 ReactDOM.render(
     <div>
-        <Slider dynamic={false}/>
+        <Slider dynamic={true}/>
     </div>,
     rootEl
 );
