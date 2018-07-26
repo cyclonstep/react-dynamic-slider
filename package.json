@@ -3,6 +3,7 @@
   "version": "0.3.1",
   "description": "This is an ease-to-use dynamic slider for react",
   "main": "build/index.js",
+  "unpkg": "dist/bundle.*.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src -d build",
@@ -21,7 +22,7 @@
     "slider"
   ],
   "author": "cyclonstep",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cyclonstep/react-dynamic-slider/issues"
   },
