@@ -154,14 +154,22 @@ export default class Slider extends Component {
     }
 
     handleChange() {
+        if (this.state.lock === true) {
+            return;
+        }
         this.props.onChange(this.state);
     }
 
     handleChangeComplete() {
+        if (this.state.lock === true) {
+            this.releaseMainThumbLock();
+            return;
+        }
         this.props.onChangeComplete(this.state);
     }
 
     handleAddMarker() {
+        console.log(this.state.markerValues);
         let { min, max } = this.maxMinMarkerValues();
         let { lockToMinMark, lockToMaxMark } = this.props;
 
@@ -179,6 +187,7 @@ export default class Slider extends Component {
 
         }
 
+        // this.releaseMainThumbLock();
         this.setLimit(min.ratios, max.ratios);
 
         this.props.onAddMarker(this.state);
@@ -216,11 +225,12 @@ export default class Slider extends Component {
     }
 
     moveMainThumb(value) {
+        this.setMainThumbLock();
         this.setState({
             mainThumbValue: value.values,
             percent: value.percents,
             ratio : value.ratios,
-            currentPosition: value.positions
+            currentPosition: value.positions,
         });
     }
 
@@ -234,8 +244,30 @@ export default class Slider extends Component {
     setLimit(min, max) {
         this.setState({
             limitMax: max,
-            limitMin: min
+            limitMin: min,
         });
+    }
+    
+    setMainThumbLock() {
+        this.setState({
+            lock: true
+        });
+    }
+
+    releaseMainThumbLock() {
+        this.setState({
+            lock: false
+        });
+    }
+
+    releaseDynamicValues() {
+        this.setState(prevState => ({
+            markerPositions: [],
+            markerPercents: [],
+            markerValues: [],
+            markerRatios: [],
+        }));
+        this.setLimit(0,100);
     }
 
 
@@ -267,6 +299,7 @@ export default class Slider extends Component {
             }
             return prev;
         });
+        console.log("match: " + match);
         return match;
     }
 
@@ -298,6 +331,7 @@ export default class Slider extends Component {
                 // console.log("i di marker values: " + i);
                 if (markerValues.length > 0) {
                     if (this.state.markerValues.length < markerCount) {
+                        console.log("markervalues setstate triger #2");
                         this.setState(prevState => ({
                             markerValues: [...prevState.markerValues, markerValues[i]],
                             markerRatios: [...prevState.markerRatios, markerRatios[i]],
@@ -307,6 +341,7 @@ export default class Slider extends Component {
                     }
                 } else {
                     if (this.state.markerValues.length < markerCount) {
+                        console.log("markervalues setstate triger #3");
                         this.setState(prevState => ({
                             markerValues: [...prevState.markerValues, ...[0]],
                             markerRatios: [...prevState.markerRatios, ...[0]],
@@ -338,6 +373,11 @@ export default class Slider extends Component {
             ratio = Math.max((value - minValue), 0) * 100 / (maxValue - minValue);
         } else {
             ratio = Math.max((this.state.mainThumbValue - minValue), 0) * 100 / (maxValue - minValue);
+        }
+
+        if (dynamic === false) {
+            // Release all if dynamic is false
+            this.releaseDynamicValues();
         }
 
         this.setState(prevState => ({
@@ -389,7 +429,12 @@ export default class Slider extends Component {
                     newRatiosArr = this.state.markerRatios.slice(1),
                     newPercsArr  = this.state.markerPercents.slice(1),
                     newPosArr    = this.state.markerPositions.slice(1);
+                // React or browser bug? array position state change by itself
+                if (newValuesArr !== newRatiosArr) {
+                    newValuesArr = newRatiosArr;
+                }
             } 
+      
             return {
                 percent,
                 markerValues : newValuesArr ? [...newValuesArr, markerValue] : [...prevState.markerValues, markerValue],

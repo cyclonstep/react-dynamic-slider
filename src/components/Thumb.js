@@ -18,6 +18,14 @@ export default class Thumb extends Component {
                 limitMax: nextProps.limitMax,
                 limitMin: nextProps.limitMin
             });
+        } else if (
+            (this.props.dynamic !== nextProps.dynamic) 
+            && (nextProps.dynamic === false)) 
+        {
+            this.setState({
+                limitMax: 100,
+                limitMin: 0
+            });
         }
     }
 
@@ -76,6 +84,7 @@ Thumb.propTypes = {
     clsName: PropTypes.string,
     color: PropTypes.string,
     customThumb: PropTypes.node,
+    dynamic: PropTypes.bool,
     limitMax: PropTypes.number,
     limitMin: PropTypes.number,
     offsetLeft: PropTypes.number,

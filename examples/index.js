@@ -6,14 +6,8 @@ import Slider from '../src/components/Slider';
 const rootEl = document.getElementById('app');
 
 ReactDOM.render(
-    <Slider 
-        dynamic={false}
-        onChange={(state) => {
-            console.log(state);
-        }}
-        onChangeComplete={(state)=>{
-            console.log(state);
-        }}
-    />,
+    <div>
+        <Slider dynamic={true}/>
+    </div>,
     rootEl
 );
